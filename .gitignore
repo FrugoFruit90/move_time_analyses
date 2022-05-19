@@ -129,3 +129,6 @@ dmypy.json
 .pyre/
 lichessapitoken.py
 test.pgn
+
+# Pycharm
+/.idea
