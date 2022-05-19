@@ -4,12 +4,14 @@ import \
     lichessapitoken  # this is a local file, you will have to put it locally w a token w study:read access- see README
 import time
 import codecs
-NUMBER_OF_TOURNAMENTS=100 #how many tournaments to analyze
+
+NUMBER_OF_TOURNAMENTS = 100  # how many tournaments to analyze
 api_token = lichessapitoken.token  # only gives study:read access
 # print(api_token)
 # this gets tournaments which is a good start
 headers = {"Authentication": "Bearer " + api_token, "Accept": "application/json"}
-answerTournaments = requests.get(url="https://lichess.org/api/broadcast", headers=headers, params={"nb": NUMBER_OF_TOURNAMENTS})
+answerTournaments = requests.get(url="https://lichess.org/api/broadcast", headers=headers,
+                                 params={"nb": NUMBER_OF_TOURNAMENTS})
 tournaments = answerTournaments.json(cls=ndjson.Decoder)
 print(len(tournaments))
 x = 0
