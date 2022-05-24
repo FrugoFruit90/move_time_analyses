@@ -135,3 +135,6 @@ test.pgn
 
 # pgns
 *.pgn
+
+# csv files
+*.csv
