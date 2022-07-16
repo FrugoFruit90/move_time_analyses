@@ -2,7 +2,7 @@ import csv
 import json
 
 rows = []
-gameClocks = []
+game_clocks = []
 
 
 def added_time_detected(clock_list):
@@ -30,7 +30,7 @@ for row in rows:
     white_clocks = clocks[::2]
     black_clocks = clocks[1::2]
     if not (added_time_detected(white_clocks) or added_time_detected(black_clocks)):
-        gameClocks.append([white_clocks, black_clocks])
+        game_clocks.append([white_clocks, black_clocks])
         # this means that time formats where there's added time encountered are removed
         # note that games in time formats where there's added time,
         # but the game didnt last long enough for time to be added are not filtered here!
