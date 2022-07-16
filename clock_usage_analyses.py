@@ -25,19 +25,17 @@ def get_result_from_perspective(x, colour):
         return np.NaN
 
 
-def tolerant_mean(arrs, max_len):
+def tolerant_mean(arrs):
     """
     :param arrs:
-    :param max_len:
-    :return: average on the list, error
+    :return: per move number: average time left, std error, count
     """
     lens = [len(i) for i in arrs]
-    arr = np.ma.empty((min(np.max(lens), max_len), len(arrs)))
+    arr = np.ma.empty((np.max(lens), len(arrs)))
     arr.mask = True
     for idx, l in enumerate(arrs):
-        arr[:min(len(l), max_len), idx] = l[:max_len]
-    frequencies = np.count()
-    return np.nanmean(arr, axis=-1), arr.std(axis=-1), frequencies
+        arr[:len(l), idx] = l
+    return np.nanmean(arr, axis=-1), arr.std(axis=-1), arr.count(axis=-1)
 
 
 parser = argparse.ArgumentParser()
@@ -82,7 +80,7 @@ mask = player_perspective_data['Elo'].value_counts() > 400
 fig, ax = plt.subplots()
 for rating_group in player_perspective_data['Elo'].value_counts()[mask].index.to_list():
     list_of_ys_diff_len = player_perspective_data[player_perspective_data['Elo'] == rating_group]['Clocks'].to_list()
-    y, error = tolerant_mean(list_of_ys_diff_len, max_len=60)
-    ax.plot(np.arange(len(y)) + 1, y, label=rating_group)
+    means, stds, counts = tolerant_mean(list_of_ys_diff_len)
+    ax.plot(np.arange(len(means)) + 1, means, label=rating_group)
 ax.legend()
 plt.savefig("time_usage.png")
