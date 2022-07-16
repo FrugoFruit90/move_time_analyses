@@ -1,4 +1,6 @@
 import argparse
+import datetime
+
 import pandas as pd
 
 from loaders import load_games_from_pgn
@@ -16,9 +18,11 @@ for i, game in enumerate(load_games_from_pgn(args.pgn_file)):
         headers = dict(game.headers)
         try:
             start_time_white = game.next().clock()
+            start_time_black = game.next().next().clock()
         except AttributeError:
             continue
-        if start_time_white is None or game.next().clock() < 5000:
+        if start_time_white is None or start_time_black is None or not 5500 > max(start_time_white,
+                                                                                  start_time_black) > 5300:
             continue
         else:
             clock_values = []
@@ -30,4 +34,7 @@ for i, game in enumerate(load_games_from_pgn(args.pgn_file)):
             game_data.append(headers)
     except Exception as exception:
         print(f"error while processing game {i}, exception: {exception}")
-pd.DataFrame(game_data).to_csv("clock_data.csv", index=False)
+
+now = datetime.datetime.now()
+
+pd.DataFrame(game_data).to_csv(f"clock_data_{now.year}_{now.month}_{now.day}_{now.hour}_{now.minute}.csv", index=False)

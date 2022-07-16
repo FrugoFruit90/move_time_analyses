@@ -1,3 +1,5 @@
+import argparse
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -34,10 +36,15 @@ def tolerant_mean(arrs, max_len):
     arr.mask = True
     for idx, l in enumerate(arrs):
         arr[:min(len(l), max_len), idx] = l[:max_len]
-    return np.nanmean(arr, axis=-1), arr.std(axis=-1)
+    frequencies = np.count()
+    return np.nanmean(arr, axis=-1), arr.std(axis=-1), frequencies
 
 
-game_data = pd.read_csv("clock_data.csv", converters={'clocks': pd.eval})
+parser = argparse.ArgumentParser()
+parser.add_argument('csv_file', type=argparse.FileType('r'))
+args = parser.parse_args()
+
+game_data = pd.read_csv(args.csv_file, converters={'clocks': pd.eval})
 game_data['WhiteClocks'] = game_data["clocks"].apply(lambda x: x[::2])
 game_data['BlackClocks'] = game_data["clocks"].apply(lambda x: x[1::2])
 game_data['WhiteElo'] = pd.cut(game_data['WhiteElo'], bins=np.arange(31) * 100)
@@ -70,9 +77,12 @@ game_data_black["Result"] = game_data_black.apply(get_result_from_perspective, a
 player_perspective_data = pd.concat([game_data_white, game_data_black], axis=0)
 player_perspective_data = player_perspective_data.dropna(subset=['Result'])
 
-# for category in player_perspective_data['Elo'].unique():
-rating_group = player_perspective_data['Elo'].unique()[0]
-list_of_ys_diff_len = player_perspective_data[player_perspective_data['Elo'] == rating_group]['Clocks'].to_list()
-y, error = tolerant_mean(list_of_ys_diff_len, max_len=60)
-plt.plot(np.arange(len(y)) + 1, y, color='green')
-plt.show()
+mask = player_perspective_data['Elo'].value_counts() > 400
+
+fig, ax = plt.subplots()
+for rating_group in player_perspective_data['Elo'].value_counts()[mask].index.to_list():
+    list_of_ys_diff_len = player_perspective_data[player_perspective_data['Elo'] == rating_group]['Clocks'].to_list()
+    y, error = tolerant_mean(list_of_ys_diff_len, max_len=60)
+    ax.plot(np.arange(len(y)) + 1, y, label=rating_group)
+ax.legend()
+plt.savefig("time_usage.png")
