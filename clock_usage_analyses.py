@@ -42,9 +42,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument('csv_file', type=argparse.FileType('r'))
 args = parser.parse_args()
 
-game_data = pd.read_csv(args.csv_file, converters={'clocks': pd.eval})
-game_data['WhiteClocks'] = game_data["clocks"].apply(lambda x: x[::2])
-game_data['BlackClocks'] = game_data["clocks"].apply(lambda x: x[1::2])
+game_data = pd.read_csv(args.csv_file, converters={'BlackClocks': pd.eval, 'WhiteClocks': pd.eval})
+
 game_data['WhiteElo'] = pd.cut(game_data['WhiteElo'], bins=np.arange(31) * 100)
 game_data['BlackElo'] = pd.cut(game_data['BlackElo'], bins=np.arange(31) * 100)
 game_data_white = game_data[RELEVANT_COLUMNS].rename(
@@ -75,7 +74,7 @@ game_data_black["Result"] = game_data_black.apply(get_result_from_perspective, a
 player_perspective_data = pd.concat([game_data_white, game_data_black], axis=0)
 player_perspective_data = player_perspective_data.dropna(subset=['Result'])
 
-mask = player_perspective_data['Elo'].value_counts() > 400
+mask = player_perspective_data['Elo'].value_counts() > 100
 
 fig, ax = plt.subplots()
 for rating_group in player_perspective_data['Elo'].value_counts()[mask].index.to_list():
